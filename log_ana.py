@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import psycopg2
 # the module that connects to the database
 
@@ -31,23 +32,34 @@ def query(user_query):
 
 # 1. popular article
 def pop_article():
-	top_article = query(("select * from top three articles"))
-	print('The most popular three articles are:')
-	for item, views in top_article:
-		print(" \"{}\" -- {} views".format(item, views))
+	top_article = query("select title, count(*) from articles "
+              "join log on path like CONCAT('%',slug) group by title "
+              "order by count(*) desc limit 3")
+	print("The most popular three articles are:")
+	for title, views in top_article:
+		print(" \"{}\" -- {} views".format(title, views))
 # 2. popular author
 def pop_author():
-	top_authors = query(("select * from top authors"))
+	top_authors = query("select name, count(path) from authors "
+            "join articles on authors.id = author join log "
+            "on path like CONCAT('%', slug) group by name order by count(path) desc limit 4")
 	print('The most popular authors are:')
-	for names, views in top_authors:
+	for name, views in top_authors:
 		print(" {} -- {} views".format(name, views))
 
 # 3. error
 def error_day():
-	errorday = process_query("select * from errorday")
-    print("Days with more than 1%  of requests lead to errors")
-    for day, percentage in errorday:
-        print(" {0:%B %d, %Y} -- {1:.2f} %  errors".format(day, percentage))
+    errorday = query("select date, avg from ("
+            "select date, (sum(error) / (select count(*) "
+            "from log where (time::date) = date)) as avg "
+            "from (select (time::date) as date, count(*) as error "
+            "from log where status like '4%' group by date) "
+            "as error_percentage group by date order by avg  desc) as final "
+            "where avg >= .01")
+    print('Days with more than 1%  of requests lead to errors')
+    for res in errorday:
+        print (str(res[0]) + " — " + str(round((res[1]*100), 2)) +
+               '%')
 
 
 if __name__ == '__main__':
