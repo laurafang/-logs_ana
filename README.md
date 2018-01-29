@@ -1,6 +1,6 @@
 # Logs-Analysis Project
 
-In this Udacity Full-stack nano degree project, I built an internal reporting tool that will use information from the database to discover what kind of articles the site's readers like.  
+In this Full-stack nano degree project, I built an internal reporting tool that will use information from the database to discover what kind of articles the site's readers like.  
 The database contains newspaper articles, as well as the web server log for the site. The log has a database row for each time a reader loaded a web page. Using that information, the code will answer questions about the site's user activity.  
 The program you write in this project will run from the command line. It won't take any input from the user. Instead, it will connect to that database, use SQL queries to analyze the log data, and print out the answers to some questions.
 
